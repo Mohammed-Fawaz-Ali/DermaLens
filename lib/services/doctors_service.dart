@@ -119,10 +119,12 @@ class DoctorsService {
       '''
 [out:json][timeout:25];
 (
-  nwr(around:20000,$latitude,$longitude)["amenity"="doctors"];
-  nwr(around:20000,$latitude,$longitude)["healthcare"="doctor"];
-  nwr(around:20000,$latitude,$longitude)["healthcare"="clinic"]["name"!~"urban primary health center|urban health centre|uphc",i];
-  nwr(around:20000,$latitude,$longitude)["amenity"="hospital"];
+  nwr(around:30000,$latitude,$longitude)["amenity"="doctors"];
+  nwr(around:30000,$latitude,$longitude)["healthcare"="doctor"];
+  nwr(around:30000,$latitude,$longitude)["amenity"="clinic"];
+  nwr(around:30000,$latitude,$longitude)["healthcare"="clinic"];
+  nwr(around:30000,$latitude,$longitude)["amenity"="hospital"];
+  nwr(around:30000,$latitude,$longitude)["healthcare"="hospital"];
 );
 out center tags;
 ''';

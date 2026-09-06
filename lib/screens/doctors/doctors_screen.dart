@@ -51,11 +51,14 @@ class _DoctorsScreenState extends State<DoctorsScreen> {
         _nearbyDoctors = results;
         _isLoading = false;
       });
-    } catch (_) {
+    } catch (error) {
       if (!mounted) return;
+      final message = error.toString().replaceFirst('Exception: ', '');
       setState(() {
         _nearbyDoctors = [];
-        _loadError = 'No live clinic results found for this location.';
+        _loadError = message.isEmpty
+            ? 'No live clinic results found for this location.'
+            : message;
         _isLoading = false;
       });
     }

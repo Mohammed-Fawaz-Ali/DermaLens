@@ -82,6 +82,7 @@ class Product {
     required this.diseases,
     this.icon,
     this.imagePath,
+    this.isActive = true,
   });
 
   final String id;
@@ -92,6 +93,7 @@ class Product {
   final List<String> diseases;
   final IconData? icon;
   final String? imagePath;
+  final bool isActive;
 }
 
 class CartItem {

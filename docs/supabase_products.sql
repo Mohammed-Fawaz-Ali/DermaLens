@@ -14,10 +14,11 @@ create table if not exists public.products (
 alter table public.products enable row level security;
 
 drop policy if exists "Anyone can read active products" on public.products;
+drop policy if exists "Anyone can read products" on public.products;
 
-create policy "Anyone can read active products"
+create policy "Anyone can read products"
 on public.products for select
-using (is_active = true);
+using (true);
 
 insert into public.products (id, name, description, price, category, diseases, image_url)
 values
@@ -36,4 +37,5 @@ on conflict (id) do update set
   category = excluded.category,
   diseases = excluded.diseases,
   image_url = excluded.image_url,
+  is_active = excluded.is_active,
   updated_at = now();

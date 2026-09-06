@@ -40,6 +40,13 @@ class _StoreScreenState extends State<StoreScreen> {
   }
 
   Future<void> _loadProducts() async {
+    final cachedProducts = await ProductService().loadCachedProducts();
+    if (mounted && cachedProducts.isNotEmpty) {
+      setState(() {
+        _products = cachedProducts;
+        _isLoading = false;
+      });
+    }
     try {
       final remoteProducts = await ProductService().loadProducts();
       if (!mounted) return;
@@ -50,7 +57,7 @@ class _StoreScreenState extends State<StoreScreen> {
     } catch (_) {
       if (!mounted) return;
       setState(() {
-        _loadError = 'Unable to load products from the database.';
+        _loadError = 'Unable to refresh products. Showing saved products.';
         _isLoading = false;
       });
     }
@@ -702,6 +709,22 @@ class ProductCardWithActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!product.isActive) {
+      return Column(
+        children: [
+          Expanded(child: ProductCard(product: product)),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            height: 40,
+            child: OutlinedButton(
+              onPressed: null,
+              child: const Text('Out of stock'),
+            ),
+          ),
+        ],
+      );
+    }
     return Column(
       children: [
         Expanded(child: ProductCard(product: product)),

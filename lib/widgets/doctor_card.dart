@@ -50,20 +50,21 @@ class DoctorCard extends StatelessWidget {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    const Icon(Icons.star, size: 16, color: Colors.amber),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${doctor.rating}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
+                    if (doctor.rating > 0) ...[
+                      const Icon(Icons.star, size: 16, color: Colors.amber),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${doctor.rating.toStringAsFixed(1)} (${doctor.reviewCount})',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '(${doctor.reviewCount})',
-                      style: TextStyle(fontSize: 12, color: AppColors.muted),
-                    ),
+                    ] else
+                      const Text(
+                        'No rating available',
+                        style: TextStyle(fontSize: 12, color: AppColors.muted),
+                      ),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -139,12 +140,13 @@ class DoctorCard extends StatelessWidget {
                         icon: const Icon(Icons.language, size: 16),
                         label: const Text('Website'),
                       ),
-                    if (doctor.mapUrl.isNotEmpty)
-                      OutlinedButton.icon(
-                        onPressed: () => _openUrl(doctor.mapUrl),
-                        icon: const Icon(Icons.map_outlined, size: 16),
-                        label: const Text('Map'),
-                      ),
+                    OutlinedButton.icon(
+                      onPressed: doctor.mapUrl.isEmpty
+                          ? null
+                          : () => _openUrl(doctor.mapUrl),
+                      icon: const Icon(Icons.map_outlined, size: 16),
+                      label: const Text('Map'),
+                    ),
                   ],
                 ),
                 SizedBox(
@@ -187,8 +189,12 @@ class DoctorCard extends StatelessWidget {
 
   Future<void> _openUrl(String value) async {
     final uri = Uri.tryParse(value);
-    if (uri != null && await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (uri == null) return;
+    final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!opened && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not open this link.')),
+      );
     }
   }
 }

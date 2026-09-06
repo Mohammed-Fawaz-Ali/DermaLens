@@ -104,17 +104,12 @@ when database configuration is missing or unavailable.
 5. Replace `YOUR_PROJECT` in the SQL image URLs with your Supabase project ID,
    then run the insert section again, or edit `image_url` in the Table Editor.
 6. Copy the project URL and anon key from **Project Settings > API**.
-7. Run the app with:
-
-```powershell
-flutter run --dart-define=SUPABASE_URL=https://YOUR_PROJECT.supabase.co --dart-define=SUPABASE_ANON_KEY=YOUR_ANON_KEY
-```
-
 For a release build:
 
 ```powershell
-flutter build apk --release --dart-define=SUPABASE_URL=https://YOUR_PROJECT.supabase.co --dart-define=SUPABASE_ANON_KEY=YOUR_ANON_KEY --dart-define=GEMINI_API_KEY=YOUR_GEMINI_API_KEY
+flutter run --dart-define=GEMINI_API_KEY=YOUR_GEMINI_API_KEY
+flutter build apk --release --dart-define=GEMINI_API_KEY=YOUR_GEMINI_API_KEY
 ```
 
-Only the Supabase anon key belongs in the app. Never put a Supabase service-role
-key or Gemini key in source control.
+The Supabase URL and anon key are configured in the app for this private
+release. Never put a Supabase service-role key in the app or source control.

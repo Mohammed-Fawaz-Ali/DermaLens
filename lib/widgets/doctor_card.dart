@@ -48,9 +48,9 @@ class DoctorCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Row(
-                  children: [
-                    if (doctor.rating > 0) ...[
+                if (doctor.rating > 0)
+                  Row(
+                    children: [
                       const Icon(Icons.star, size: 16, color: Colors.amber),
                       const SizedBox(width: 4),
                       Text(
@@ -60,13 +60,8 @@ class DoctorCard extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ] else
-                      const Text(
-                        'No rating available',
-                        style: TextStyle(fontSize: 12, color: AppColors.muted),
-                      ),
-                  ],
-                ),
+                    ],
+                  ),
                 const SizedBox(height: 8),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,

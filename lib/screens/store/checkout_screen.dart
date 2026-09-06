@@ -218,19 +218,21 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             style: const TextStyle(color: AppColors.muted, height: 1.5),
           ),
           const SizedBox(height: 28),
-          _sectionTitle('Sample orders'),
-          _sampleOrder(
-            'DL-10421',
-            'Moisturizer and cleanser',
-            'Delivered',
-            '₹620.00',
-          ),
-          _sampleOrder('DL-10387', 'SPF 50 sunscreen', 'In transit', '₹450.00'),
-          _sampleOrder(
-            _orderId ?? 'DL-new',
-            'Current order',
-            'Confirmed',
-            '₹${_total.toStringAsFixed(2)}',
+          _sectionTitle('Items in your order'),
+          ...widget.items.map(
+            (item) => Card(
+              color: AppColors.surface,
+              child: ListTile(
+                title: Text(item.product.name),
+                subtitle: Text(
+                  '${item.qty} x ₹${item.product.price.toStringAsFixed(2)}',
+                ),
+                trailing: Text(
+                  '₹${item.lineTotal.toStringAsFixed(2)}',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
           ),
           const SizedBox(height: 20),
           OutlinedButton.icon(
@@ -240,30 +242,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             label: const Text('Return to store'),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _sampleOrder(
-    String id,
-    String description,
-    String status,
-    String total,
-  ) {
-    return Card(
-      color: AppColors.surface,
-      child: ListTile(
-        leading: const Icon(
-          Icons.receipt_long_outlined,
-          color: AppColors.primary,
-        ),
-        title: Text(id),
-        subtitle: Text('$description\n$status'),
-        isThreeLine: true,
-        trailing: Text(
-          total,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
       ),
     );
   }

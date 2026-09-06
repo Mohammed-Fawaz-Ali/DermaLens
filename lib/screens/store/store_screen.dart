@@ -65,7 +65,7 @@ class _StoreScreenState extends State<StoreScreen> {
 
   List<Product> get _filteredProducts {
     final queryLower = _searchQuery.trim().toLowerCase();
-    return _products.where((product) {
+    final filtered = _products.where((product) {
       final matchesCategory =
           _selectedCategory == 'All' || product.category == _selectedCategory;
       final searchableText = [
@@ -76,6 +76,11 @@ class _StoreScreenState extends State<StoreScreen> {
       ].join(' ').toLowerCase();
       return matchesCategory && searchableText.contains(queryLower);
     }).toList();
+    filtered.sort((a, b) {
+      if (a.isActive == b.isActive) return 0;
+      return a.isActive ? -1 : 1;
+    });
+    return filtered;
   }
 
   List<String> get _categories {
@@ -291,6 +296,29 @@ class _CartScreenState extends State<CartScreen> {
     _items = widget.cartItems
         .map((item) => CartItem(product: item.product, qty: item.qty))
         .toList();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final unavailableItems = _items
+          .where((item) => !item.product.isActive)
+          .toList();
+      if (unavailableItems.isEmpty || !mounted) return;
+
+      for (final item in unavailableItems) {
+        widget.onRemoveFromCart(item.product.id);
+      }
+      setState(() {
+        _items.removeWhere((item) => !item.product.isActive);
+      });
+      final names = unavailableItems
+          .map((item) => item.product.name)
+          .join(', ');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '$names ${unavailableItems.length == 1 ? 'is' : 'are'} out of stock and ${unavailableItems.length == 1 ? 'was' : 'were'} removed from your cart.',
+          ),
+        ),
+      );
+    });
   }
 
   double get _totalAmount {

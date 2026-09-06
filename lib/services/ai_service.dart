@@ -14,10 +14,10 @@ class AiService {
   static final List<String> _classIds = [
     'Acne',
     'Actinic_Keratosis',
-    'Benign_Tumors',
+    'Benign_tumors',
     'Bullous',
     'Candidiasis',
-    'Drug_Eruption',
+    'DrugEruption',
     'Eczema',
     'Infestations_Bites',
     'Lichen',
@@ -25,8 +25,8 @@ class AiService {
     'Moles',
     'Psoriasis',
     'Rosacea',
-    'Seborrheic_Keratoses',
-    'Skin_Cancer',
+    'Seborrh_Keratoses',
+    'SkinCancer',
     'Sun_Sunlight_Damage',
     'Tinea',
     'Unknown_Normal',
@@ -201,9 +201,7 @@ class AiService {
 
   /// Get display name for disease ID
   String _getDisplayName(String diseaseId) {
-    // This would normally come from your catalog data
-    // For now, return the ID formatted nicely
-    return diseaseId.replaceAll('_', ' ');
+    return diseaseId;
   }
 
   /// Dispose resources

@@ -48,7 +48,14 @@ All image processing for skin analysis occurs entirely on your device. No images
 1. Clone this repository
 2. Run `flutter pub get` to install dependencies
 3. Connect a device or start an emulator
-4. Run `flutter run`
+4. Run `flutter run --dart-define=GEMINI_API_KEY=YOUR_GEMINI_API_KEY`
+
+The Gemini key is intentionally not stored in Git. Provide it through
+`GEMINI_API_KEY` when running or building the app:
+
+```powershell
+flutter build apk --release --dart-define=GEMINI_API_KEY=YOUR_GEMINI_API_KEY
+```
 
 ### Important Notes About the AI Model
 This project includes two model files in the `assets/models/` directory:

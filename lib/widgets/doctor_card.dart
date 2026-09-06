@@ -136,14 +136,14 @@ class DoctorCard extends StatelessWidget {
                   children: [
                     if (doctor.website.isNotEmpty)
                       OutlinedButton.icon(
-                        onPressed: () => _openUrl(doctor.website),
+                        onPressed: () => _openUrl(context, doctor.website),
                         icon: const Icon(Icons.language, size: 16),
                         label: const Text('Website'),
                       ),
                     OutlinedButton.icon(
                       onPressed: doctor.mapUrl.isEmpty
                           ? null
-                          : () => _openUrl(doctor.mapUrl),
+                          : () => _openUrl(context, doctor.mapUrl),
                       icon: const Icon(Icons.map_outlined, size: 16),
                       label: const Text('Map'),
                     ),
@@ -187,7 +187,7 @@ class DoctorCard extends StatelessWidget {
     );
   }
 
-  Future<void> _openUrl(String value) async {
+  Future<void> _openUrl(BuildContext context, String value) async {
     final uri = Uri.tryParse(value);
     if (uri == null) return;
     final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);

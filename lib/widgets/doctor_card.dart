@@ -9,177 +9,156 @@ class DoctorCard extends StatelessWidget {
 
   const DoctorCard({Key? key, required this.doctor}) : super(key: key);
 
+  /// Prefer one place name so hospital isn't printed twice.
+  String get _placeLabel {
+    final clinic = doctor.clinic.trim();
+    final location = doctor.location.trim();
+    if (clinic.isEmpty) return location;
+    if (location.isEmpty) return clinic;
+    // Same or location already contains clinic → show once
+    if (clinic.toLowerCase() == location.toLowerCase() ||
+        location.toLowerCase().contains(clinic.toLowerCase()) ||
+        clinic.toLowerCase().contains(location.toLowerCase())) {
+      return location.length >= clinic.length ? location : clinic;
+    }
+    return '$clinic · $location';
+  }
+
   @override
   Widget build(BuildContext context) {
+    final place = _placeLabel;
+
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.chip, width: 1),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  doctor.name,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.text,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  doctor.specialty,
-                  style: TextStyle(fontSize: 14, color: AppColors.primary),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  doctor.clinic,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.text,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                if (doctor.rating > 0)
-                  Row(
-                    children: [
-                      const Icon(Icons.star, size: 16, color: Colors.amber),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${doctor.rating.toStringAsFixed(1)} (${doctor.reviewCount})',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                const SizedBox(height: 8),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Icon(
-                      Icons.location_on_outlined,
-                      size: 16,
-                      color: AppColors.muted,
-                    ),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        doctor.location,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.muted,
-                          height: 1.3,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                // Show distance if available
-                if (doctor.distance.isNotEmpty && doctor.distance != '0.0')
-                  Padding(
-                    padding: const EdgeInsets.only(left: 20.0, top: 4.0),
-                    child: Text(
-                      '${doctor.distance} km away',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppColors.muted,
-                      ),
-                    ),
-                  ),
-                const SizedBox(height: 8),
-                Chip(
-                  label: Text(
-                    doctor.availability,
-                    style: const TextStyle(fontSize: 10, color: AppColors.text),
-                  ),
-                  backgroundColor: AppColors.primary.withOpacity(0.1),
-                  labelPadding: const EdgeInsets.symmetric(
-                    horizontal: 6.0,
-                    vertical: 2.0,
-                  ),
-                ),
-                if (doctor.phone.isNotEmpty || doctor.website.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(
-                      [
-                        if (doctor.phone.isNotEmpty) doctor.phone,
-                        if (doctor.website.isNotEmpty) doctor.website,
-                      ].join(' | '),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppColors.muted,
-                      ),
-                    ),
-                  ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    if (doctor.website.isNotEmpty)
-                      OutlinedButton.icon(
-                        onPressed: () => _openUrl(context, doctor.website),
-                        icon: const Icon(Icons.language, size: 16),
-                        label: const Text('Website'),
-                      ),
-                    OutlinedButton.icon(
-                      onPressed: doctor.mapUrl.isEmpty
-                          ? null
-                          : () => _openUrl(context, doctor.mapUrl),
-                      icon: const Icon(Icons.map_outlined, size: 16),
-                      label: const Text('Map'),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  width: double.infinity,
-                  height: 36,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'Appointment request started for ${doctor.name}',
-                          ),
-                          backgroundColor: AppColors.primary,
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Text(
-                      'Book Appointment',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              doctor.name,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppColors.text,
+              ),
             ),
-          ),
-        ],
+            const SizedBox(height: 4),
+            Text(
+              doctor.specialty,
+              style: const TextStyle(fontSize: 14, color: AppColors.primary),
+            ),
+            if (doctor.rating > 0) ...[
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  const Icon(Icons.star, size: 16, color: Colors.amber),
+                  const SizedBox(width: 4),
+                  Text(
+                    '${doctor.rating.toStringAsFixed(1)} (${doctor.reviewCount})',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+            if (place.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(
+                    Icons.location_on_outlined,
+                    size: 16,
+                    color: AppColors.muted,
+                  ),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      place,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.muted,
+                        height: 1.3,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+            if (doctor.distance.isNotEmpty && doctor.distance != '0.0')
+              const SizedBox(height: 4),
+            if (doctor.distance.isNotEmpty && doctor.distance != '0.0')
+              Padding(
+                padding: const EdgeInsets.only(left: 20.0),
+                child: Text(
+                  '${doctor.distance} km away',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.muted,
+                  ),
+                ),
+              ),
+            if (doctor.availability.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Chip(
+                label: Text(
+                  doctor.availability,
+                  style: const TextStyle(fontSize: 10, color: AppColors.text),
+                ),
+                backgroundColor: AppColors.primary.withOpacity(0.1),
+                labelPadding: const EdgeInsets.symmetric(
+                  horizontal: 6.0,
+                  vertical: 2.0,
+                ),
+              ),
+            ],
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              height: 36,
+              child: ElevatedButton(
+                onPressed: () => _openDirections(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  'Get Directions',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  Future<void> _openDirections(BuildContext context) async {
+    // Prefer maps; fall back to website only if no map URL
+    final target = doctor.mapUrl.isNotEmpty
+        ? doctor.mapUrl
+        : (doctor.website.isNotEmpty ? doctor.website : '');
+    if (target.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No directions available.')),
+      );
+      return;
+    }
+    await _openUrl(context, target);
   }
 
   Future<void> _openUrl(BuildContext context, String value) async {

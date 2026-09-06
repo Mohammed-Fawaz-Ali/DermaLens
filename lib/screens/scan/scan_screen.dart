@@ -29,6 +29,32 @@ class _ScanScreenState extends State<ScanScreen> {
   String? _errorMessage;
   XFile? _selectedImage;
 
+  /// Same 22 labels the EfficientNet model was trained on.
+  static const List<String> _diseaseLabels = [
+    'Acne',
+    'Actinic Keratosis',
+    'Benign tumors',
+    'Bullous',
+    'Candidiasis',
+    'Drug Eruption',
+    'Eczema',
+    'Infestations / Bites',
+    'Lichen',
+    'Lupus',
+    'Moles',
+    'Psoriasis',
+    'Rosacea',
+    'Seborrheic Keratoses',
+    'Skin Cancer',
+    'Sun / Sunlight Damage',
+    'Tinea',
+    'Unknown / Normal',
+    'Vascular Tumors',
+    'Vasculitis',
+    'Vitiligo',
+    'Warts',
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -134,19 +160,14 @@ class _ScanScreenState extends State<ScanScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              // Image Preview
               _selectedImage == null
                   ? _buildImagePlaceholder()
                   : _buildImagePreview(),
-
-              const SizedBox(height: 20),
-
-              // Action Buttons
+              const SizedBox(height: 12),
+              _buildModelScopeBanner(),
+              const SizedBox(height: 16),
               _buildActionButtons(),
-
               const SizedBox(height: 20),
-
-              // Loading / Error / Results
               if (_isAnalyzing)
                 _buildLoadingIndicator()
               else if (_errorMessage != null)
@@ -155,10 +176,34 @@ class _ScanScreenState extends State<ScanScreen> {
                 _buildResults()
               else
                 _buildInstructions(),
-
               const SizedBox(height: 30),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  /// Short line always visible under the image area.
+  Widget _buildModelScopeBanner() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: AppColors.chip,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Text(
+          'This model predicts among 22 skin conditions: '
+          '${_diseaseLabels.join(', ')}.',
+          style: TextStyle(
+            color: AppColors.muted,
+            fontSize: 13,
+            height: 1.35,
+          ),
+          textAlign: TextAlign.center,
         ),
       ),
     );
@@ -282,6 +327,15 @@ class _ScanScreenState extends State<ScanScreen> {
             ),
           ),
         ),
+        const SizedBox(height: 8),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: Text(
+            'Top matches from 22 trained disease labels',
+            style: TextStyle(color: AppColors.muted, fontSize: 13),
+            textAlign: TextAlign.center,
+          ),
+        ),
         const SizedBox(height: 16),
         ListView.builder(
           shrinkWrap: true,
@@ -303,24 +357,31 @@ class _ScanScreenState extends State<ScanScreen> {
 
   Widget _buildInstructions() {
     return Padding(
-      padding: EdgeInsets.all(24.0),
-      child: RichText(
-        textAlign: TextAlign.center,
-        text: const TextSpan(
-          style: TextStyle(fontSize: 16, color: AppColors.muted),
-          children: [
-            TextSpan(
-              text: 'Select an image using the buttons above to begin skin analysis.\n\n',
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        children: [
+          RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
+              style: TextStyle(fontSize: 16, color: AppColors.muted, height: 1.4),
+              children: const [
+                TextSpan(
+                  text:
+                      'Select an image using the buttons above to begin skin analysis.\n\n',
+                ),
+                TextSpan(
+                  text:
+                      'The AI model classifies photos into 22 disease labels and returns the top matches with confidence scores.\n\n',
+                ),
+                TextSpan(
+                  text:
+                      'Remember: This is for educational purposes only. Always consult a healthcare professional for medical advice.',
+                  style: TextStyle(color: AppColors.danger),
+                ),
+              ],
             ),
-            TextSpan(
-              text: 'The AI model will provide educational insights about potential skin conditions.\n\n',
-            ),
-            TextSpan(
-              text: 'Remember: This is for educational purposes only. Always consult a healthcare professional for medical advice.',
-              style: TextStyle(color: AppColors.danger),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

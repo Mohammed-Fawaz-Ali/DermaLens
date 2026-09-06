@@ -8,6 +8,7 @@ class Patient {
     required this.skinType,
     this.allergies = '',
     this.phone = '',
+    this.location = '',
   });
 
   final String name;
@@ -16,6 +17,7 @@ class Patient {
   final String skinType;
   final String allergies;
   final String phone;
+  final String location;
 
   Map<String, String> toMap() => {
     'name': name,
@@ -24,6 +26,7 @@ class Patient {
     'skinType': skinType,
     'allergies': allergies,
     'phone': phone,
+    'location': location,
   };
 
   factory Patient.fromMap(Map<String, String> map) => Patient(
@@ -33,6 +36,7 @@ class Patient {
     skinType: map['skinType'] ?? 'Not sure',
     allergies: map['allergies'] ?? '',
     phone: map['phone'] ?? '',
+    location: map['location'] ?? '',
   );
 }
 

@@ -26,6 +26,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final _ageController = TextEditingController();
   final _allergiesController = TextEditingController();
   final _phoneController = TextEditingController();
+  final _locationController = TextEditingController();
   final _profileService = ProfileService();
 
   String _gender = 'Prefer not to say';
@@ -66,6 +67,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _skinType = _skinTypes.contains(patient.skinType)
         ? patient.skinType
         : _skinTypes.first;
+    _locationController.text = patient.location;
   }
 
   @override
@@ -74,6 +76,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _ageController.dispose();
     _allergiesController.dispose();
     _phoneController.dispose();
+    _locationController.dispose();
     super.dispose();
   }
 
@@ -87,6 +90,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       skinType: _skinType,
       allergies: _allergiesController.text.trim(),
       phone: _phoneController.text.trim(),
+      location: _locationController.text.trim(),
     );
     await _profileService.saveProfile(patient);
     if (!mounted) return;
@@ -181,6 +185,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Icons.phone_outlined,
                 keyboardType: TextInputType.phone,
               ),
+              const SizedBox(height: 28),
+              const SizedBox(height: 14),
+              _textField(
+                _locationController,
+                "Location",
+                Icons.location_on_outlined,
+                required: true,
+              ),
+              const SizedBox(height: 14),
               const SizedBox(height: 28),
               SizedBox(
                 height: 52,

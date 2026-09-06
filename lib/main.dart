@@ -136,7 +136,7 @@ class _DermalensHomePageState extends State<DermalensHomePage> {
         onClearCart: _onClearCart,
         cart: _cart,
       ),
-      DoctorsScreen(),
+      DoctorsScreen(patient: _patient),
       HistoryScreen(refreshToken: _historyRefreshToken),
       SettingsScreen(patient: _patient, onSaved: _onProfileSaved),
     ];

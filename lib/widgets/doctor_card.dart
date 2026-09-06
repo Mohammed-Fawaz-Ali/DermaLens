@@ -124,6 +124,18 @@ class DoctorCard extends StatelessWidget {
                     ),
                   ],
                 ),
+                // Show distance if available
+                if (doctor.distance.isNotEmpty && doctor.distance != '0.0')
+                  Padding(
+                    padding: const EdgeInsets.only(left: 20.0, top: 4.0),
+                    child: Text(
+                      '${doctor.distance} km away',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.muted,
+                      ),
+                    ),
+                  ),
                 const SizedBox(height: 8),
                 Chip(
                   label: Text(

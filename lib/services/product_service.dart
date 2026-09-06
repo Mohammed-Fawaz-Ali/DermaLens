@@ -5,14 +5,11 @@ import 'package:http/http.dart' as http;
 import '../models.dart';
 
 class ProductService {
-  static const _url = String.fromEnvironment('SUPABASE_URL');
-  static const _anonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
+  static const _url = 'https://maxubunwqmitwvcjjbpw.supabase.co';
+  static const _anonKey =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1heHVidW53cW1pdHd2Y2pqYnB3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2ODc1MjgsImV4cCI6MjEwNDI2MzUyOH0.SiHb1-IhjZ6UQFW-cDUGOtGqxAg8actRh3GaVfofUNY';
 
   Future<List<Product>> loadProducts() async {
-    if (_url.isEmpty || _anonKey.isEmpty) {
-      throw Exception('Supabase is not configured');
-    }
-
     final response = await http
         .get(
           Uri.parse(

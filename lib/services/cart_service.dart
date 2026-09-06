@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../data/catalog.dart';
 import '../models.dart';
+import 'product_service.dart';
 
 class CartService {
   static const _cartKey = 'shopping_cart';
@@ -15,6 +15,7 @@ class CartService {
 
     try {
       final savedItems = jsonDecode(encodedCart) as List<dynamic>;
+      final products = await ProductService().loadProducts();
       return savedItems
           .map((value) {
             final item = Map<String, dynamic>.from(value as Map);

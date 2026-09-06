@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../models.dart';
-import '../../data/catalog.dart';
 import '../../services/product_service.dart';
 import '../../theme.dart';
 import '../../widgets/product_card.dart';
@@ -30,7 +29,7 @@ class StoreScreen extends StatefulWidget {
 class _StoreScreenState extends State<StoreScreen> {
   String _selectedCategory = 'All';
   String _searchQuery = '';
-  List<Product> _products = products;
+  List<Product> _products = [];
   bool _isLoading = true;
   String? _loadError;
 
@@ -51,7 +50,7 @@ class _StoreScreenState extends State<StoreScreen> {
     } catch (_) {
       if (!mounted) return;
       setState(() {
-        _loadError = 'Database unavailable. Showing local products.';
+        _loadError = 'Unable to load products from the database.';
         _isLoading = false;
       });
     }
@@ -70,6 +69,12 @@ class _StoreScreenState extends State<StoreScreen> {
       ].join(' ').toLowerCase();
       return matchesCategory && searchableText.contains(queryLower);
     }).toList();
+  }
+
+  List<String> get _categories {
+    final values = _products.map((product) => product.category).toSet().toList()
+      ..sort();
+    return ['All', ...values];
   }
 
   @override
@@ -166,9 +171,9 @@ class _StoreScreenState extends State<StoreScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: categories.length,
+        itemCount: _categories.length,
         itemBuilder: (context, index) {
-          final category = categories[index];
+          final category = _categories[index];
           final isSelected = category == _selectedCategory;
           return Padding(
             padding: const EdgeInsets.only(right: 8.0),

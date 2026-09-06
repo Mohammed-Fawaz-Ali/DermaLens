@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models.dart';
 import '../../data/catalog.dart';
+import '../../services/product_service.dart';
 import '../../theme.dart';
 import '../../widgets/product_card.dart';
 import 'checkout_screen.dart';
@@ -29,10 +30,36 @@ class StoreScreen extends StatefulWidget {
 class _StoreScreenState extends State<StoreScreen> {
   String _selectedCategory = 'All';
   String _searchQuery = '';
+  List<Product> _products = products;
+  bool _isLoading = true;
+  String? _loadError;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProducts();
+  }
+
+  Future<void> _loadProducts() async {
+    try {
+      final remoteProducts = await ProductService().loadProducts();
+      if (!mounted) return;
+      setState(() {
+        _products = remoteProducts;
+        _isLoading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _loadError = 'Database unavailable. Showing local products.';
+        _isLoading = false;
+      });
+    }
+  }
 
   List<Product> get _filteredProducts {
     final queryLower = _searchQuery.trim().toLowerCase();
-    return products.where((product) {
+    return _products.where((product) {
       final matchesCategory =
           _selectedCategory == 'All' || product.category == _selectedCategory;
       final searchableText = [
@@ -78,12 +105,24 @@ class _StoreScreenState extends State<StoreScreen> {
       ),
       body: Column(
         children: [
+          if (_loadError != null)
+            MaterialBanner(
+              content: Text(_loadError!),
+              actions: [
+                TextButton(
+                  onPressed: _loadProducts,
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
           // Category Filter
           _buildCategoryFilter(),
 
           // Products Grid
           Expanded(
-            child: _filteredProducts.isEmpty
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _filteredProducts.isEmpty
                 ? _buildEmptyState()
                 : GridView.builder(
                     padding: const EdgeInsets.all(16.0),
@@ -571,17 +610,7 @@ class CartItemCard extends StatelessWidget {
           ),
           child: Center(
             child: cartItem.product.imagePath != null
-                ? Image.asset(
-                    cartItem.product.imagePath!,
-                    width: 60,
-                    height: 60,
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) => Icon(
-                      cartItem.product.icon ?? Icons.image_not_supported,
-                      size: 24,
-                      color: AppColors.muted,
-                    ),
-                  )
+                ? _cartProductImage(cartItem.product)
                 : Icon(
                     cartItem.product.icon ?? Icons.image_not_supported,
                     size: 24,
@@ -624,13 +653,29 @@ class CartItemCard extends StatelessWidget {
             ),
             IconButton(
               icon: const Icon(Icons.add),
-              onPressed: () {
-                onQuantityChanged(cartItem.qty + 1);
-              },
+              onPressed: () => onQuantityChanged(cartItem.qty + 1),
             ),
             IconButton(icon: const Icon(Icons.delete), onPressed: onRemove),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _cartProductImage(Product product) {
+    final path = product.imagePath!;
+    final image = path.startsWith('http')
+        ? Image.network(path, fit: BoxFit.contain)
+        : Image.asset(path, fit: BoxFit.contain);
+    return Image(
+      image: image.image,
+      width: 60,
+      height: 60,
+      fit: BoxFit.contain,
+      errorBuilder: (context, error, stackTrace) => Icon(
+        product.icon ?? Icons.image_not_supported,
+        size: 24,
+        color: AppColors.muted,
       ),
     );
   }

@@ -33,17 +33,7 @@ class ProductCard extends StatelessWidget {
             child: product.imagePath != null
                 ? Padding(
                     padding: const EdgeInsets.all(10),
-                    child: Image.asset(
-                      product.imagePath!,
-                      width: double.infinity,
-                      height: double.infinity,
-                      fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) => Icon(
-                        product.icon ?? Icons.image_not_supported,
-                        size: 32,
-                        color: AppColors.muted,
-                      ),
-                    ),
+                    child: _productImage(product),
                   )
                 : product.icon != null
                 ? Icon(product.icon, size: 32, color: AppColors.muted)
@@ -102,6 +92,22 @@ class ProductCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _productImage(Product product) {
+    final path = product.imagePath!;
+    final image = path.startsWith('http')
+        ? Image.network(path, fit: BoxFit.contain)
+        : Image.asset(path, fit: BoxFit.contain);
+    return Image(
+      image: image.image,
+      fit: BoxFit.contain,
+      errorBuilder: (context, error, stackTrace) => Icon(
+        product.icon ?? Icons.image_not_supported,
+        size: 32,
+        color: AppColors.muted,
       ),
     );
   }

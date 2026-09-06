@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../models.dart';
 import '../theme.dart';
@@ -19,43 +20,6 @@ class DoctorCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Doctor Image
-          ClipRRect(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(12),
-              topRight: Radius.circular(12),
-            ),
-            child: Container(
-              height: 180,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: AppColors.chip,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(12),
-                  topRight: Radius.circular(12),
-                ),
-              ),
-              child: doctor.imageUrl.isNotEmpty
-                  ? Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: Image.asset(
-                        doctor.imageUrl,
-                        width: double.infinity,
-                        height: double.infinity,
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const Icon(
-                              Icons.person,
-                              size: 48,
-                              color: AppColors.muted,
-                            ),
-                      ),
-                    )
-                  : const Icon(Icons.person, size: 48, color: AppColors.muted),
-            ),
-          ),
-
-          // Doctor Info
           Padding(
             padding: const EdgeInsets.all(12.0),
             child: Column(
@@ -148,7 +112,41 @@ class DoctorCard extends StatelessWidget {
                     vertical: 2.0,
                   ),
                 ),
+                if (doctor.phone.isNotEmpty || doctor.website.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      [
+                        if (doctor.phone.isNotEmpty) doctor.phone,
+                        if (doctor.website.isNotEmpty) doctor.website,
+                      ].join(' | '),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.muted,
+                      ),
+                    ),
+                  ),
                 const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    if (doctor.website.isNotEmpty)
+                      OutlinedButton.icon(
+                        onPressed: () => _openUrl(doctor.website),
+                        icon: const Icon(Icons.language, size: 16),
+                        label: const Text('Website'),
+                      ),
+                    if (doctor.mapUrl.isNotEmpty)
+                      OutlinedButton.icon(
+                        onPressed: () => _openUrl(doctor.mapUrl),
+                        icon: const Icon(Icons.map_outlined, size: 16),
+                        label: const Text('Map'),
+                      ),
+                  ],
+                ),
                 SizedBox(
                   width: double.infinity,
                   height: 36,
@@ -185,5 +183,12 @@ class DoctorCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _openUrl(String value) async {
+    final uri = Uri.tryParse(value);
+    if (uri != null && await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
   }
 }

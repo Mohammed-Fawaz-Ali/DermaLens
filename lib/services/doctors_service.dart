@@ -13,10 +13,12 @@ class DoctorsService {
 
   Future<List<Doctor>> fetchNearbyDoctors(String userLocation) async {
     final location = userLocation.trim();
-    if (location.isEmpty) return getNearbyDoctors('');
+    if (location.isEmpty) return [];
 
     final coordinates = await _geocode(location);
-    if (coordinates == null) return getNearbyDoctors(location);
+    if (coordinates == null) {
+      throw Exception('Could not find the profile location');
+    }
 
     final response = await http
         .post(
@@ -45,9 +47,11 @@ class DoctorsService {
       );
       final name = (tags['name'] as String?)?.trim();
       if (name == null || name.isEmpty) continue;
+      if (_isGenericPublicHealthFacility(name)) continue;
 
       final id = '${element['type']}-${element['id']}';
-      if (!seen.add(id)) continue;
+      final normalizedName = _normalizeName(name);
+      if (!seen.add(normalizedName)) continue;
 
       final latitude = (element['lat'] ?? element['center']?['lat']) as num?;
       final longitude = (element['lon'] ?? element['center']?['lon']) as num?;
@@ -72,6 +76,10 @@ class DoctorsService {
           availability: 'Contact clinic for availability',
           imageUrl: '',
           bio: _contactInfo(tags),
+          phone: _phone(tags),
+          website: _website(tags),
+          mapUrl:
+              'https://www.google.com/maps/search/?api=1&query=${latitude.toDouble()},${longitude.toDouble()}',
         ),
       );
     }
@@ -79,9 +87,10 @@ class DoctorsService {
     results.sort(
       (a, b) => double.parse(a.distance).compareTo(double.parse(b.distance)),
     );
-    return results.isEmpty
-        ? getNearbyDoctors(location)
-        : results.take(20).toList();
+    if (results.isEmpty) {
+      throw Exception('No named clinics were found nearby');
+    }
+    return results.take(20).toList();
   }
 
   Future<(double, double)?> _geocode(String location) async {
@@ -112,10 +121,22 @@ class DoctorsService {
 (
   nwr(around:20000,$latitude,$longitude)["amenity"="doctors"];
   nwr(around:20000,$latitude,$longitude)["healthcare"="doctor"];
-  nwr(around:20000,$latitude,$longitude)["healthcare"="clinic"];
+  nwr(around:20000,$latitude,$longitude)["healthcare"="clinic"]["name"!~"urban primary health center|urban health centre|uphc",i];
+  nwr(around:20000,$latitude,$longitude)["amenity"="hospital"];
 );
 out center tags;
 ''';
+
+  bool _isGenericPublicHealthFacility(String name) {
+    final value = name.toLowerCase();
+    return value.contains('urban primary health center') ||
+        value.contains('urban health centre') ||
+        value.contains('urban health center') ||
+        value.contains('uphc');
+  }
+
+  String _normalizeName(String value) =>
+      value.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), ' ').trim();
 
   String _specialty(Map<String, dynamic> tags) {
     final specialty = tags['healthcare:speciality'] ?? tags['speciality'];
@@ -138,16 +159,22 @@ out center tags;
   }
 
   String _contactInfo(Map<String, dynamic> tags) {
-    final phone = tags['phone'] ?? tags['contact:phone'];
-    final website = tags['website'] ?? tags['contact:website'];
+    final phone = _phone(tags);
+    final website = _website(tags);
     final parts = [
-      if (phone is String && phone.isNotEmpty) 'Phone: $phone',
-      if (website is String && website.isNotEmpty) 'Website: $website',
+      if (phone.isNotEmpty) 'Phone: $phone',
+      if (website.isNotEmpty) 'Website: $website',
     ];
     return parts.isEmpty
         ? 'Clinic information from OpenStreetMap.'
         : parts.join(' | ');
   }
+
+  String _phone(Map<String, dynamic> tags) =>
+      (tags['phone'] ?? tags['contact:phone'] ?? '').toString().trim();
+
+  String _website(Map<String, dynamic> tags) =>
+      (tags['website'] ?? tags['contact:website'] ?? '').toString().trim();
 
   double _distanceInKm(
     double latitude1,

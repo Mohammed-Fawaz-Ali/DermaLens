@@ -190,6 +190,9 @@ class Doctor {
     required this.availability,
     required this.imageUrl,
     required this.bio,
+    this.phone = '',
+    this.website = '',
+    this.mapUrl = '',
   });
 
   final String id;
@@ -203,4 +206,7 @@ class Doctor {
   final String availability;
   final String imageUrl;
   final String bio;
+  final String phone;
+  final String website;
+  final String mapUrl;
 }

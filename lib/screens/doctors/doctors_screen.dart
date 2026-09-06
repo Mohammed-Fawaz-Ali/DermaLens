@@ -54,10 +54,8 @@ class _DoctorsScreenState extends State<DoctorsScreen> {
     } catch (_) {
       if (!mounted) return;
       setState(() {
-        _nearbyDoctors = _doctorsService.getNearbyDoctors(
-          widget.patient?.location ?? '',
-        );
-        _loadError = 'Live search unavailable. Showing saved clinic results.';
+        _nearbyDoctors = [];
+        _loadError = 'No live clinic results found for this location.';
         _isLoading = false;
       });
     }
@@ -83,7 +81,7 @@ class _DoctorsScreenState extends State<DoctorsScreen> {
 
   List<String> get _specialties {
     final Set<String> specialties = {};
-    for (var doctor in doctors) {
+    for (var doctor in _nearbyDoctors) {
       specialties.add(doctor.specialty);
     }
     return ['All', ...specialties.toList()];

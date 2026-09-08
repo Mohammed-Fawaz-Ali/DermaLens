@@ -138,7 +138,11 @@ class _DermalensHomePageState extends State<DermalensHomePage> {
       ),
       DoctorsScreen(patient: _patient),
       HistoryScreen(refreshToken: _historyRefreshToken),
-      SettingsScreen(patient: _patient, onSaved: _onProfileSaved),
+      SettingsScreen(
+        patient: _patient,
+        isFirstRun: false,
+        onSaved: _onProfileSaved,
+      ),
     ];
   }
 

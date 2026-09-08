@@ -25,15 +25,17 @@ class DoctorCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  doctor.name,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.text,
+                if (!_sameLabel(doctor.name, doctor.clinic)) ...[
+                  Text(
+                    doctor.name,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.text,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
+                  const SizedBox(height: 4),
+                ],
                 Text(
                   doctor.specialty,
                   style: TextStyle(fontSize: 14, color: AppColors.primary),
@@ -140,39 +142,9 @@ class DoctorCard extends StatelessWidget {
                           ? null
                           : () => _openUrl(context, doctor.mapUrl),
                       icon: const Icon(Icons.map_outlined, size: 16),
-                      label: const Text('Map'),
+                      label: const Text('Get Directions'),
                     ),
                   ],
-                ),
-                SizedBox(
-                  width: double.infinity,
-                  height: 36,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'Appointment request started for ${doctor.name}',
-                          ),
-                          backgroundColor: AppColors.primary,
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Text(
-                      'Book Appointment',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
                 ),
               ],
             ),
@@ -180,6 +152,12 @@ class DoctorCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  bool _sameLabel(String first, String second) {
+    String normalize(String value) =>
+        value.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '');
+    return normalize(first) == normalize(second);
   }
 
   Future<void> _openUrl(BuildContext context, String value) async {
